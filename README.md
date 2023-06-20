@@ -22,4 +22,3 @@ git submodule update --init --recursive
 # Will work in Windows PowerShell
 cmake CMakeLists.txt
 ```
-```
