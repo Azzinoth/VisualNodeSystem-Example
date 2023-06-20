@@ -1,0 +1,3 @@
+[submodule "FEVisualNodeSystem"]
+	path = SubSystems/FEVisualNodeSystem
+	url = https://github.com/Azzinoth/FEVisualNodeSystem
