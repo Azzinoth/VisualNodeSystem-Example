@@ -72,15 +72,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		{
 			if (ImGui::BeginMenu("File"))
 			{
-				if (ImGui::MenuItem("Save nodes..."))
+				if (ImGui::MenuItem("Save nodes to Save.nodes file"))
 				{
-					
+					NodeArea->SaveToFile("Save.nodes");
 				}
 
-				if (ImGui::MenuItem("Load nodes..."))
+				DWORD dwAttrib = GetFileAttributesA("Save.nodes");
+				if (!(dwAttrib != INVALID_FILE_ATTRIBUTES &&
+					!(dwAttrib & FILE_ATTRIBUTE_DIRECTORY)))
+					ImGui::BeginDisabled();
+
+				if (ImGui::MenuItem("Load nodes from Save.nodes file"))
 				{
-					
+					NodeArea->Clear();
+					NodeArea->LoadFromFile("Save.nodes");
 				}
+
+				if (!(dwAttrib != INVALID_FILE_ATTRIBUTES &&
+					!(dwAttrib & FILE_ATTRIBUTE_DIRECTORY)))
+					ImGui::EndDisabled();
 
 				if (ImGui::MenuItem("Exit"))
 				{
