@@ -2,6 +2,7 @@
 #include "CustomNode.h"
 #include "CustomNode2.h"
 #include "CustomNode3.h"
+#include "CustomNode4.h"
 
 void DrawNodeAreaWindow(FEVisualNodeArea* NodeArea)
 {
@@ -33,7 +34,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	DefaultNode->SetName("Default node");
 	DefaultNode->AddInputSocket(new FEVisualNodeSocket(DefaultNode, FE_NODE_SOCKET_FLOAT_CHANNEL_IN, "in"));
 	DefaultNode->AddOutputSocket(new FEVisualNodeSocket(DefaultNode, FE_NODE_SOCKET_FLOAT_CHANNEL_OUT, "out"));
-	DefaultNode->SetPosition(ImVec2(WindowSize.x / 2 - DefaultNode->GetSize().x / 2, 200));
+	DefaultNode->SetPosition(ImVec2(WindowSize.x / 2.0f - DefaultNode->GetSize().x / 2.0f, 200.0f));
 	NodeArea->AddNode(DefaultNode);
 	
 	FEVisualNode* RoundNode = new FEVisualNode();
@@ -41,12 +42,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	RoundNode->SetName("Round node");
 	RoundNode->AddInputSocket(new FEVisualNodeSocket(RoundNode, FE_NODE_SOCKET_FLOAT_CHANNEL_IN, "in"));
 	RoundNode->AddOutputSocket(new FEVisualNodeSocket(RoundNode, FE_NODE_SOCKET_FLOAT_CHANNEL_OUT, "out"));
-	RoundNode->SetPosition(ImVec2(WindowSize.x / 2 - RoundNode->GetSize().x / 2, 350));
+	RoundNode->SetPosition(ImVec2(WindowSize.x / 2.0f - RoundNode->GetSize().x / 2.0f, 350.0f));
 	NodeArea->AddNode(RoundNode);
 
 	// Custom node
 	CustomNode* CustomNodeExample = new CustomNode();
-	CustomNodeExample->SetPosition(ImVec2(WindowSize.x / 2 - CustomNodeExample->GetSize().x / 2, 490));
+	CustomNodeExample->SetPosition(ImVec2(WindowSize.x / 2.0f - CustomNodeExample->GetSize().x / 2, 490.0f));
 	NodeArea->AddNode(CustomNodeExample);
 	
 	// Some simple rules on sockets
@@ -57,6 +58,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	CustomNode3* CustomNode3Example = new CustomNode3();
 	CustomNode3Example->SetPosition(ImVec2(WindowSize.x / 2.0f - CustomNode3Example->GetSize().x / 2.0f, 40.0f));
 	NodeArea->AddNode(CustomNode3Example);
+
+	// Sockets events.
+	CustomNode4* CustomNode4Example = new CustomNode4();
+	CustomNode4Example->SetPosition(ImVec2(850.0f, 250.0f));
+	NodeArea->AddNode(CustomNode4Example);
 
 	while (APPLICATION.IsWindowOpened())
 	{
