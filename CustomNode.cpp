@@ -2,12 +2,12 @@
 
 VISUAL_NODE_CHILD_CPP(CustomNode)
 
-CustomNode::CustomNode() : FEVisualNode()
+CustomNode::CustomNode() : VisualNode()
 {
 	Type = "CustomNode";
 	bCouldBeDestroyed = false;
 
-	SetStyle(FE_VISUAL_NODE_STYLE_DEFAULT);
+	SetStyle(VISUAL_NODE_STYLE_DEFAULT);
 
 	SetSize(ImVec2(220, 78));
 	SetName("CustomNode");
@@ -15,25 +15,25 @@ CustomNode::CustomNode() : FEVisualNode()
 	TitleBackgroundColor = ImColor(31, 117, 208);
 	TitleBackgroundColorHovered = ImColor(35, 145, 255);
 	
-	AddOutputSocket(new FEVisualNodeSocket(this, FE_NODE_SOCKET_FLOAT_CHANNEL_OUT, "out"));
+	AddSocket(new NodeSocket(this, "FLOAT", "out", true));
 }
 
-CustomNode::CustomNode(const CustomNode& Src) : FEVisualNode(Src)
+CustomNode::CustomNode(const CustomNode& Src) : VisualNode(Src)
 {
 	Data = Src.Data;
 	bCouldBeDestroyed = false;
 
-	SetStyle(FE_VISUAL_NODE_STYLE_DEFAULT);
+	SetStyle(VISUAL_NODE_STYLE_DEFAULT);
 }
 
-void CustomNode::SetStyle(FE_VISUAL_NODE_STYLE NewValue)
+void CustomNode::SetStyle(VISUAL_NODE_STYLE NewValue)
 {
 	// Do nothing. We don't want to change style
 }
 
 void CustomNode::Draw()
 {	
-	FEVisualNode::Draw();
+	VisualNode::Draw();
 
 	ImVec2 NodePosition = ImGui::GetCursorScreenPos();
 	ImVec2 NodeSize = GetSize();
@@ -45,9 +45,9 @@ void CustomNode::Draw()
 	ImGui::Text("User non-deletable node.");
 }
 
-void CustomNode::SocketEvent(FEVisualNodeSocket* OwnSocket, FEVisualNodeSocket* ConnectedSocket, FE_VISUAL_NODE_SOCKET_EVENT EventType)
+void CustomNode::SocketEvent(NodeSocket* OwnSocket, NodeSocket* ConnectedSocket, VISUAL_NODE_SOCKET_EVENT EventType)
 {
-	FEVisualNode::SocketEvent(OwnSocket,  ConnectedSocket, EventType);
+	VisualNode::SocketEvent(OwnSocket,  ConnectedSocket, EventType);
 }
 
 float CustomNode::GetData()
@@ -55,15 +55,15 @@ float CustomNode::GetData()
 	return Data;
 }
 
-bool CustomNode::CanConnect(FEVisualNodeSocket* OwnSocket, FEVisualNodeSocket* CandidateSocket, char** MsgToUser)
+bool CustomNode::CanConnect(NodeSocket* OwnSocket, NodeSocket* CandidateSocket, char** MsgToUser)
 {
-	if (!FEVisualNode::CanConnect(OwnSocket, CandidateSocket, nullptr))
+	if (!VisualNode::CanConnect(OwnSocket, CandidateSocket, nullptr))
 		return false;
 
 	return false;
 }
 
-FEVisualNode* CustomNode::GetNextNode()
+VisualNode* CustomNode::GetNextNode()
 {
 	if (Output.size() > 0 && Output[0]->GetConnections().size() > 0)
 		return Output[0]->GetConnections()[0]->GetParent();

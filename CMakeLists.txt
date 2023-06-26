@@ -5,7 +5,7 @@ set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CONFIGURATION_TYPES Debug Release)
 
 # set the project name
-project(FEVisual_Node_System_Example LANGUAGES CXX)
+project(Visual_Node_System_Example LANGUAGES CXX)
 
 # set different compiler flags depending on build type
 set(CMAKE_CXX_FLAGS_DEBUG "/MP /ZI /W3 /Od /MDd /JMC /sdl /FC /D WIN32 /D IMGUI_IMPL_OPENGL_LOADER_GLEW /D _WINDOWS /D _DEBUG")
@@ -16,8 +16,8 @@ set(CMAKE_CXX_FLAGS_RELEASE "/MP /W3 /O2 /Oi /Gy /sdl /FC /GL /OPT:REF /OPT:ICF 
 # defined projects like INSTALL.vcproj and ZERO_CHECK.vcproj
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-if(NOT TARGET FEVisualNodeSystem)
-	add_subdirectory(SubSystems/FEVisualNodeSystem)
+if(NOT TARGET VisualNodeSystem)
+	add_subdirectory(SubSystems/VisualNodeSystem)
 endif()
 
 file(GLOB source_SRC
@@ -36,21 +36,21 @@ link_directories(${GLEW_LIB_DIR})
 link_directories(${GLFW_LIB_DIR})
 
 # add the executable
-add_executable(FEVisual_Node_System_Example WIN32
+add_executable(Visual_Node_System_Example WIN32
 			   ${source_SRC}
 )
 
-target_link_libraries(FEVisual_Node_System_Example FEVisualNodeSystem)
+target_link_libraries(Visual_Node_System_Example VisualNodeSystem)
 
-target_link_libraries(FEVisual_Node_System_Example glew32s.lib)
-target_link_libraries(FEVisual_Node_System_Example glfw3.lib)
-target_link_libraries(FEVisual_Node_System_Example glfw3dll.lib)
-target_link_libraries(FEVisual_Node_System_Example opengl32.lib)
+target_link_libraries(Visual_Node_System_Example glew32s.lib)
+target_link_libraries(Visual_Node_System_Example glfw3.lib)
+target_link_libraries(Visual_Node_System_Example glfw3dll.lib)
+target_link_libraries(Visual_Node_System_Example opengl32.lib)
 
 source_group("Source Files" FILES ${source_SRC})
 
 # set the startup project
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT FEVisual_Node_System_Example)
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Visual_Node_System_Example)
 
 include_directories(
 	${GLEW_INCLUDE_DIR}

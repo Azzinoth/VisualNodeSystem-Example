@@ -1,8 +1,8 @@
-# FEVisualNode System Example
+# VisualNode System Example
 
-![build](https://github.com/Azzinoth/FEVisualNodeSystem-Example/actions/workflows/Build.yml/badge.svg?branch=master)
+![build](https://github.com/Azzinoth/VisualNodeSystem-Example/actions/workflows/Build.yml/badge.svg?branch=master)
 
-This repository provides an example of a simple application that integrates the [FEVisualNode System](https://github.com/Azzinoth/FEVisualNodeSystem).
+This repository provides an example of a simple application that integrates the [VisualNode System](https://github.com/Azzinoth/VisualNodeSystem).
 
 ## Building the Project for Visual Studio (Windows)
 ```bash
@@ -10,7 +10,7 @@ This repository provides an example of a simple application that integrates the 
 git init
 
 # Add the remote repository
-git remote add origin https://github.com/Azzinoth/FEVisualNodeSystem-Example
+git remote add origin https://github.com/Azzinoth/VisualNodeSystem-Example
 
 # Pull the contents of the remote repository
 git pull origin master

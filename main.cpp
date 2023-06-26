@@ -1,10 +1,10 @@
-#include "FEVisualNodeSystem.h"
+#include "VisualNodeSystem.h"
 #include "CustomNode.h"
 #include "CustomNode2.h"
 #include "CustomNode3.h"
 #include "CustomNode4.h"
 
-void DrawNodeAreaWindow(FEVisualNodeArea* NodeArea)
+void DrawNodeAreaWindow(VisualNodeArea* NodeArea)
 {
 	ImGuiViewport* viewport = ImGui::GetMainViewport();
 	ImGui::SetNextWindowPos(viewport->WorkPos);
@@ -21,27 +21,27 @@ void DrawNodeAreaWindow(FEVisualNodeArea* NodeArea)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	ImVec2 WindowSize = ImVec2(1280, 720);
-	APPLICATION.InitWindow(WindowSize.x, WindowSize.y, "FEVisualNodeSystem example");
+	APPLICATION.InitWindow(WindowSize.x, WindowSize.y, "VisualNodeSystem example");
 
-	FEVisualNodeArea* NodeArea = nullptr;
+	VisualNodeArea* NodeArea = nullptr;
 
 	NodeArea = NODE_SYSTEM.CreateNodeArea();
 	// This new function does not break other projects.
 	NodeArea->SetIsAreaFillingWindow(true);
 
 	// Need to place that node in the center of the screen
-	FEVisualNode* DefaultNode = new FEVisualNode();
+	VisualNode* DefaultNode = new VisualNode();
 	DefaultNode->SetName("Default node");
-	DefaultNode->AddInputSocket(new FEVisualNodeSocket(DefaultNode, FE_NODE_SOCKET_FLOAT_CHANNEL_IN, "in"));
-	DefaultNode->AddOutputSocket(new FEVisualNodeSocket(DefaultNode, FE_NODE_SOCKET_FLOAT_CHANNEL_OUT, "out"));
+	DefaultNode->AddSocket(new NodeSocket(DefaultNode, "FLOAT", "in", false));
+	DefaultNode->AddSocket(new NodeSocket(DefaultNode, "FLOAT", "out", true));
 	DefaultNode->SetPosition(ImVec2(WindowSize.x / 2.0f - DefaultNode->GetSize().x / 2.0f, 200.0f));
 	NodeArea->AddNode(DefaultNode);
 	
-	FEVisualNode* RoundNode = new FEVisualNode();
-	RoundNode->SetStyle(FE_VISUAL_NODE_STYLE_CIRCLE);
+	VisualNode* RoundNode = new VisualNode();
+	RoundNode->SetStyle(VISUAL_NODE_STYLE_CIRCLE);
 	RoundNode->SetName("Round node");
-	RoundNode->AddInputSocket(new FEVisualNodeSocket(RoundNode, FE_NODE_SOCKET_FLOAT_CHANNEL_IN, "in"));
-	RoundNode->AddOutputSocket(new FEVisualNodeSocket(RoundNode, FE_NODE_SOCKET_FLOAT_CHANNEL_OUT, "out"));
+	RoundNode->AddSocket(new NodeSocket(RoundNode, "FLOAT", "in", false));
+	RoundNode->AddSocket(new NodeSocket(RoundNode, "FLOAT", "out", true));
 	RoundNode->SetPosition(ImVec2(WindowSize.x / 2.0f - RoundNode->GetSize().x / 2.0f, 350.0f));
 	NodeArea->AddNode(RoundNode);
 
