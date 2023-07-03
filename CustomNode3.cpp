@@ -1,6 +1,20 @@
 #include "CustomNode3.h"
 
-VISUAL_NODE_CHILD_CPP(CustomNode3)
+bool CustomNode3::isRegistered = []()
+{
+	NODE_FACTORY.RegisterNodeType("CustomNode3",
+		[]() -> VisualNode* {
+			return new CustomNode3();
+		},
+
+		[](const VisualNode& Node) -> VisualNode* {
+			const CustomNode3& NodeToCopy = static_cast<const CustomNode3&>(Node);
+			return new CustomNode3(NodeToCopy);
+		}
+	);
+
+	return true;
+}();
 
 CustomNode3::CustomNode3() : VisualNode()
 {
@@ -62,12 +76,4 @@ bool CustomNode3::CanConnect(NodeSocket* OwnSocket, NodeSocket* CandidateSocket,
 		return true;
 
 	return false;
-}
-
-VisualNode* CustomNode3::GetNextNode()
-{
-	if (Output.size() > 0 && Output[0]->GetConnections().size() > 0)
-		return Output[0]->GetConnections()[0]->GetParent();
-	
-	return nullptr;
 }

@@ -2,7 +2,11 @@
 
 #include "SubSystems/VisualNodeSystem/VisualNodeSystem.h"
 
-VISUAL_NODE_CHILD_PRIVATE_PART(CustomNode4)
+class CustomNode4 : public VisualNode
+{
+	friend class NodeFactory;
+	static bool isRegistered;
+
 	float Data = 0.0f;
 
 	bool CanConnect(NodeSocket* OwnSocket, NodeSocket* CandidateSocket, char** MsgToUser);
@@ -18,8 +22,4 @@ public:
 
 	void Draw();
 	float GetData();
-
-	VisualNode* GetNextNode();
 };
-
-VISUAL_NODE_CHILD_AFTER_CLASS(CustomNode4)
