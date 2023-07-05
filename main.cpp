@@ -3,6 +3,7 @@
 #include "CustomNode2.h"
 #include "CustomNode3.h"
 #include "CustomNode4.h"
+#include "CustomNodeStyleDemonstration.h"
 
 void DrawNodeAreaWindow(VisualNodeArea* NodeArea)
 {
@@ -63,6 +64,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	CustomNode4* CustomNode4Example = new CustomNode4();
 	CustomNode4Example->SetPosition(ImVec2(850.0f, 250.0f));
 	NodeArea->AddNode(CustomNode4Example);
+
+	// Socket style.
+	CustomNodeStyleDemonstration* CustomNode5Example = new CustomNodeStyleDemonstration();
+	CustomNode5Example->SetPosition(ImVec2(30.0f, 250.0f));
+	CustomNode5Example->SetSize(CustomNode5Example->GetSize() + ImVec2(60.0f, 10.0f));
+	NodeArea->AddNode(CustomNode5Example);
+
+	CustomNodeStyleDemonstration* CustomNode6Example = new CustomNodeStyleDemonstration();
+	CustomNode6Example->SetPosition(ImVec2(290.0f, 250.0f));
+	NodeArea->AddNode(CustomNode6Example);
+
+	NodeArea->TryToConnect(CustomNode5Example, 0, CustomNode6Example, 0);
+	NodeArea->TryToConnect(CustomNode5Example, 1, CustomNode6Example, 1);
+	NodeArea->TryToConnect(CustomNode5Example, 2, CustomNode6Example, 2);
+	NodeArea->TryToConnect(CustomNode5Example, 3, CustomNode6Example, 3);
 
 	while (APPLICATION.IsWindowOpened())
 	{

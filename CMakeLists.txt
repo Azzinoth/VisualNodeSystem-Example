@@ -29,6 +29,8 @@ file(GLOB source_SRC
 	"CustomNode3.cpp"
 	"CustomNode4.h"
 	"CustomNode4.cpp"
+	"CustomNodeStyleDemonstration.h"
+	"CustomNodeStyleDemonstration.cpp"
 	"main.cpp"
 )
 
