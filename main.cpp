@@ -5,7 +5,10 @@
 #include "CustomNode4.h"
 #include "CustomNodeStyleDemonstration.h"
 
-void DrawNodeAreaWindow(VisualNodeArea* NodeArea)
+using namespace VisNodeSys;
+using namespace FocalEngine;
+
+void DrawNodeAreaWindow(NodeArea* NodeArea)
 {
 	ImGuiViewport* viewport = ImGui::GetMainViewport();
 	ImGui::SetNextWindowPos(viewport->WorkPos);
@@ -22,27 +25,27 @@ void DrawNodeAreaWindow(VisualNodeArea* NodeArea)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	ImVec2 WindowSize = ImVec2(1280, 720);
-	APPLICATION.InitWindow(WindowSize.x, WindowSize.y, "VisualNodeSystem example");
+	FocalEngine::APPLICATION.InitWindow(static_cast<int>(WindowSize.x), static_cast<int>(WindowSize.y), "VisualNodeSystem example");
 
-	VisualNodeArea* NodeArea = nullptr;
+	NodeArea* NodeArea = nullptr;
 
 	NodeArea = NODE_SYSTEM.CreateNodeArea();
 	// This new function does not break other projects.
 	NodeArea->SetIsAreaFillingWindow(true);
 
 	// Need to place that node in the center of the screen
-	VisualNode* DefaultNode = new VisualNode();
+	Node* DefaultNode = new Node();
 	DefaultNode->SetName("Default node");
-	DefaultNode->AddSocket(new NodeSocket(DefaultNode, "FLOAT", "in", false));
-	DefaultNode->AddSocket(new NodeSocket(DefaultNode, "FLOAT", "out", true));
+	DefaultNode->AddSocket(new NodeSocket(DefaultNode, "EXEC", "in", false));
+	DefaultNode->AddSocket(new NodeSocket(DefaultNode, "EXEC", "out", true));
 	DefaultNode->SetPosition(ImVec2(WindowSize.x / 2.0f - DefaultNode->GetSize().x / 2.0f, 200.0f));
 	NodeArea->AddNode(DefaultNode);
 	
-	VisualNode* RoundNode = new VisualNode();
-	RoundNode->SetStyle(VISUAL_NODE_STYLE_CIRCLE);
+	Node* RoundNode = new Node();
+	RoundNode->SetStyle(CIRCLE);
 	RoundNode->SetName("Round node");
-	RoundNode->AddSocket(new NodeSocket(RoundNode, "FLOAT", "in", false));
-	RoundNode->AddSocket(new NodeSocket(RoundNode, "FLOAT", "out", true));
+	RoundNode->AddSocket(new NodeSocket(RoundNode, "EXEC", "in", false));
+	RoundNode->AddSocket(new NodeSocket(RoundNode, "EXEC", "out", true));
 	RoundNode->SetPosition(ImVec2(WindowSize.x / 2.0f - RoundNode->GetSize().x / 2.0f, 350.0f));
 	NodeArea->AddNode(RoundNode);
 
@@ -80,11 +83,42 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	NodeArea->TryToConnect(CustomNode5Example, 2, CustomNode6Example, 2);
 	NodeArea->TryToConnect(CustomNode5Example, 3, CustomNode6Example, 3);
 
-	while (APPLICATION.IsWindowOpened())
-	{
-		APPLICATION.BeginFrame();
+	// Demonstration of reroute nodes.
+	Node* RerouteDemostrationNode = new Node();
+	RerouteDemostrationNode->SetName("Some node");
+	RerouteDemostrationNode->AddSocket(new NodeSocket(RerouteDemostrationNode, "EXEC", "out", true));
+	RerouteDemostrationNode->SetSize(RerouteDemostrationNode->GetSize() - ImVec2(80.0f, 0.0f));
+	RerouteDemostrationNode->SetPosition(ImVec2(30.0f, 490.0f));
+	NodeArea->AddNode(RerouteDemostrationNode);
 
-		glClearColor(0.6, 0.85, 0.917, 1.0);
+	Node* RerouteDemostrationNodeMiddle = new Node();
+	RerouteDemostrationNodeMiddle->SetName("Some node in between");
+	RerouteDemostrationNodeMiddle->SetSize(RerouteDemostrationNodeMiddle->GetSize() - ImVec2(80.0f, 0.0f));
+	RerouteDemostrationNodeMiddle->SetPosition(ImVec2(190.0f, 490.0f));
+	NodeArea->AddNode(RerouteDemostrationNodeMiddle);
+
+	Node* RerouteDemostrationNodeEnd = new Node();
+	RerouteDemostrationNodeEnd->SetName("Some node");
+	RerouteDemostrationNodeEnd->AddSocket(new NodeSocket(RerouteDemostrationNodeEnd, "EXEC", "in", false));
+	RerouteDemostrationNodeEnd->SetSize(RerouteDemostrationNodeEnd->GetSize() - ImVec2(80.0f, 0.0f));
+	RerouteDemostrationNodeEnd->SetPosition(ImVec2(350.0f, 490.0f));
+	NodeArea->AddNode(RerouteDemostrationNodeEnd);
+
+	NodeArea->TryToConnect(RerouteDemostrationNode, 0, RerouteDemostrationNodeEnd, 0);
+	int SegmentIndex = 0;
+	NodeArea->AddRerouteNodeToConnection(RerouteDemostrationNode, 0, RerouteDemostrationNodeEnd, 0, SegmentIndex, ImVec2(190.0f, 470.0f));
+	NodeArea->AddRerouteNodeToConnection(RerouteDemostrationNode, 0, RerouteDemostrationNodeEnd, 0, SegmentIndex + 1, ImVec2(312.0f, 470.0f));
+
+	// In previous example SegmentIndex would be 0 and 1.
+	// But in real project you would need to know already existing reroute nodes(segments).
+	// GetConnectionSegments function will give you vector of pair(begin and end coordinates) for each segment. 
+	std::vector<std::pair<ImVec2, ImVec2>> Segments = NodeArea->GetConnectionSegments(RerouteDemostrationNode, 0, RerouteDemostrationNodeEnd, 0);
+
+	while (FocalEngine::APPLICATION.IsWindowOpened())
+	{
+		FocalEngine::APPLICATION.BeginFrame();
+
+		glClearColor(0.6f, 0.85f, 0.917f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		DrawNodeAreaWindow(NodeArea);

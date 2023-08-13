@@ -1,14 +1,15 @@
 #include "CustomNodeStyleDemonstration.h"
+using namespace VisNodeSys;
 
 bool CustomNodeStyleDemonstration::isRegistered = []()
 {
 	NODE_FACTORY.RegisterNodeType("CustomNodeStyleDemonstration",
-		[]() -> VisualNode* {
+		[]() -> Node* {
 			return new CustomNodeStyleDemonstration();
 		},
 
-		[](const VisualNode& Node) -> VisualNode* {
-			const CustomNodeStyleDemonstration& NodeToCopy = static_cast<const CustomNodeStyleDemonstration&>(Node);
+		[](const Node& CurrentNode) -> Node* {
+			const CustomNodeStyleDemonstration& NodeToCopy = static_cast<const CustomNodeStyleDemonstration&>(CurrentNode);
 			return new CustomNodeStyleDemonstration(NodeToCopy);
 		}
 	);
@@ -16,11 +17,11 @@ bool CustomNodeStyleDemonstration::isRegistered = []()
 	return true;
 }();
 
-CustomNodeStyleDemonstration::CustomNodeStyleDemonstration() : VisualNode()
+CustomNodeStyleDemonstration::CustomNodeStyleDemonstration() : Node()
 {
 	Type = "CustomNodeStyleDemonstration";
 
-	SetStyle(VISUAL_NODE_STYLE_DEFAULT);
+	SetStyle(DEFAULT);
 
 	SetSize(ImVec2(160, 130));
 	SetName("Style Demonstration");
@@ -42,60 +43,51 @@ CustomNodeStyleDemonstration::CustomNodeStyleDemonstration() : VisualNode()
 	AddSocket(new NodeSocket(this, "FLOAT", "float", true));
 	AddSocket(new NodeSocket(this, "MARCHING_ANT", "ants", true));
 	AddSocket(new NodeSocket(this, "FADE_OUT", "fade", true));
-
-	// Also individual socket connections could have unique styles.
-	VisualNodeConnectionStyle CurrentStyle;
-	GetSocketStyle(true, 2, CurrentStyle);
-	CurrentStyle.bMarchingAntsEffect = true;
-	SetSocketStyle(true, 2, CurrentStyle);
-
-	GetSocketStyle(true, 3, CurrentStyle);
-	CurrentStyle.bPulseEffect = true;
-	SetSocketStyle(true, 3, CurrentStyle);
 }
 
-CustomNodeStyleDemonstration::CustomNodeStyleDemonstration(const CustomNodeStyleDemonstration& Src) : VisualNode(Src)
+CustomNodeStyleDemonstration::CustomNodeStyleDemonstration(const CustomNodeStyleDemonstration& Src) : Node(Src)
 {
-	SetStyle(VISUAL_NODE_STYLE_DEFAULT);
+	SetStyle(DEFAULT);
 
 	// Also individual socket connections could have unique styles.
-	VisualNodeConnectionStyle CurrentStyle;
-	GetSocketStyle(true, 2, CurrentStyle);
+	ConnectionStyle CurrentStyle;
+	GetParentArea()->GetConnectionStyle(this, true, 2, CurrentStyle);
 	CurrentStyle.bMarchingAntsEffect = true;
-	SetSocketStyle(true, 2, CurrentStyle);
+	GetParentArea()->SetConnectionStyle(this, true, 2, CurrentStyle);
 
-	GetSocketStyle(true, 3, CurrentStyle);
+	GetParentArea()->GetConnectionStyle(this, true, 3, CurrentStyle);
 	CurrentStyle.bPulseEffect = true;
-	SetSocketStyle(true, 3, CurrentStyle);
+	GetParentArea()->SetConnectionStyle(this, true, 3, CurrentStyle);
 }
 
-void CustomNodeStyleDemonstration::SetStyle(VISUAL_NODE_STYLE NewValue)
+void CustomNodeStyleDemonstration::SetStyle(NODE_STYLE NewValue)
 {
 	// Do nothing. We don't want to change style
 }
 
 void CustomNodeStyleDemonstration::Draw()
 {	
-	VisualNode::Draw();
+	Node::Draw();
 
+	float Zoom = ParentArea->GetZoomFactor();
 	bool LocalBool = CouldBeMoved();
 
 	if (GetNodesConnectedToOutput().size() > 0)
 	{
 		ImVec2 NodePosition = ImGui::GetCursorScreenPos();
-		VisualNodeConnectionStyle CurrentStyle;
-		GetSocketStyle(true, 2, CurrentStyle);
+		ConnectionStyle CurrentStyle;
+		GetParentArea()->GetConnectionStyle(this, true, 2, CurrentStyle);
 
-		ImGui::SetCursorScreenPos(NodePosition + ImVec2(70.0f, 70.0f));
+		ImGui::SetCursorScreenPos(NodePosition + ImVec2(70.0f, 70.0f) * Zoom);
 		if (ImGui::Checkbox("Reverse \ndirection", &bReverseDirection))
 		{
 			CurrentStyle.bMarchingAntsReverseDirection = bReverseDirection;
 		}
 
-		ImGui::SetCursorScreenPos(NodePosition + ImVec2(70.0f, 100.0f));
+		ImGui::SetCursorScreenPos(NodePosition + ImVec2(70.0f, 100.0f) * Zoom);
 		ImGui::Text("Speed:");
-		ImGui::SetCursorScreenPos(NodePosition + ImVec2(70.0f, 120.0f));
-		ImGui::SetNextItemWidth(70.0f);
+		ImGui::SetCursorScreenPos(NodePosition + ImVec2(70.0f, 120.0f) * Zoom);
+		ImGui::SetNextItemWidth(70.0f * Zoom);
 		ImGui::SliderFloat("##Speed", &CurrentStyle.MarchingAntsSpeed, 0.01f, 10.0f);
 
 		if (ImGui::IsItemHovered())
@@ -110,18 +102,31 @@ void CustomNodeStyleDemonstration::Draw()
 			SetCouldBeMoved(true);
 		}
 
-		SetSocketStyle(true, 2, CurrentStyle);
+		GetParentArea()->SetConnectionStyle(this, true, 2, CurrentStyle);
 	}
 }
 
-void CustomNodeStyleDemonstration::SocketEvent(NodeSocket* OwnSocket, NodeSocket* ConnectedSocket, VISUAL_NODE_SOCKET_EVENT EventType)
+void CustomNodeStyleDemonstration::SocketEvent(NodeSocket* OwnSocket, NodeSocket* ConnectedSocket, NODE_SOCKET_EVENT EventType)
 {
-	VisualNode::SocketEvent(OwnSocket,  ConnectedSocket, EventType);
+	Node::SocketEvent(OwnSocket,  ConnectedSocket, EventType);
+
+	if (EventType == CONNECTED)
+	{
+		// Also individual socket connections could have unique styles.
+		ConnectionStyle CurrentStyle;
+		GetParentArea()->GetConnectionStyle(this, true, 2, CurrentStyle);
+		CurrentStyle.bMarchingAntsEffect = true;
+		GetParentArea()->SetConnectionStyle(this, true, 2, CurrentStyle);
+
+		GetParentArea()->GetConnectionStyle(this, true, 3, CurrentStyle);
+		CurrentStyle.bPulseEffect = true;
+		GetParentArea()->SetConnectionStyle(this, true, 3, CurrentStyle);
+	}
 }
 
 bool CustomNodeStyleDemonstration::CanConnect(NodeSocket* OwnSocket, NodeSocket* CandidateSocket, char** MsgToUser)
 {
-	if (!VisualNode::CanConnect(OwnSocket, CandidateSocket, nullptr))
+	if (!Node::CanConnect(OwnSocket, CandidateSocket, nullptr))
 		return false;
 
 	return true;

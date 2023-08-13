@@ -1,14 +1,15 @@
 #include "CustomNode.h"
+using namespace VisNodeSys;
 
 bool CustomNode::isRegistered = []()
 {
 	NODE_FACTORY.RegisterNodeType("CustomNode",
-		[]() -> VisualNode* {
+		[]() -> Node* {
 			return new CustomNode();
 		},
 
-		[](const VisualNode& Node) -> VisualNode* {
-			const CustomNode& NodeToCopy = static_cast<const CustomNode&>(Node);
+		[](const Node& CurrentNode) -> Node* {
+			const CustomNode& NodeToCopy = static_cast<const CustomNode&>(CurrentNode);
 			return new CustomNode(NodeToCopy);
 		}
 	);
@@ -16,12 +17,12 @@ bool CustomNode::isRegistered = []()
 	return true;
 }();
 
-CustomNode::CustomNode() : VisualNode()
+CustomNode::CustomNode() : Node()
 {
 	Type = "CustomNode";
 	bCouldBeDestroyed = false;
 
-	SetStyle(VISUAL_NODE_STYLE_DEFAULT);
+	SetStyle(DEFAULT);
 
 	SetSize(ImVec2(220, 78));
 	SetName("CustomNode");
@@ -29,39 +30,40 @@ CustomNode::CustomNode() : VisualNode()
 	TitleBackgroundColor = ImColor(31, 117, 208);
 	TitleBackgroundColorHovered = ImColor(35, 145, 255);
 	
-	AddSocket(new NodeSocket(this, "FLOAT", "out", true));
+	AddSocket(new NodeSocket(this, "EXEC", "out", true));
 }
 
-CustomNode::CustomNode(const CustomNode& Src) : VisualNode(Src)
+CustomNode::CustomNode(const CustomNode& Src) : Node(Src)
 {
 	Data = Src.Data;
 	bCouldBeDestroyed = false;
 
-	SetStyle(VISUAL_NODE_STYLE_DEFAULT);
+	SetStyle(DEFAULT);
 }
 
-void CustomNode::SetStyle(VISUAL_NODE_STYLE NewValue)
+void CustomNode::SetStyle(NODE_STYLE NewValue)
 {
 	// Do nothing. We don't want to change style
 }
 
 void CustomNode::Draw()
 {	
-	VisualNode::Draw();
+	Node::Draw();
 
+	float Zoom = ParentArea->GetZoomFactor();
 	ImVec2 NodePosition = ImGui::GetCursorScreenPos();
 	ImVec2 NodeSize = GetSize();
 
-	ImGui::SetCursorScreenPos(NodePosition + ImVec2(5.0f, 34.0f));
+	ImGui::SetCursorScreenPos(NodePosition + ImVec2(5.0f, 34.0f) * Zoom);
 	ImGui::Text("This is custom node");
 
-	ImGui::SetCursorScreenPos(NodePosition + ImVec2(5.0f, 55.0f));
+	ImGui::SetCursorScreenPos(NodePosition + ImVec2(5.0f, 55.0f) * Zoom);
 	ImGui::Text("User non-deletable node.");
 }
 
-void CustomNode::SocketEvent(NodeSocket* OwnSocket, NodeSocket* ConnectedSocket, VISUAL_NODE_SOCKET_EVENT EventType)
+void CustomNode::SocketEvent(NodeSocket* OwnSocket, NodeSocket* ConnectedSocket, NODE_SOCKET_EVENT EventType)
 {
-	VisualNode::SocketEvent(OwnSocket,  ConnectedSocket, EventType);
+	Node::SocketEvent(OwnSocket,  ConnectedSocket, EventType);
 }
 
 float CustomNode::GetData()
@@ -71,7 +73,7 @@ float CustomNode::GetData()
 
 bool CustomNode::CanConnect(NodeSocket* OwnSocket, NodeSocket* CandidateSocket, char** MsgToUser)
 {
-	if (!VisualNode::CanConnect(OwnSocket, CandidateSocket, nullptr))
+	if (!Node::CanConnect(OwnSocket, CandidateSocket, nullptr))
 		return false;
 
 	return false;

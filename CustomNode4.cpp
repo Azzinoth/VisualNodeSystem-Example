@@ -1,14 +1,15 @@
 #include "CustomNode4.h"
+using namespace VisNodeSys;
 
 bool CustomNode4::isRegistered = []()
 {
 	NODE_FACTORY.RegisterNodeType("CustomNode4",
-		[]() -> VisualNode* {
+		[]() -> Node* {
 			return new CustomNode4();
 		},
 
-		[](const VisualNode& Node) -> VisualNode* {
-			const CustomNode4& NodeToCopy = static_cast<const CustomNode4&>(Node);
+		[](const Node& CurrentNode) -> Node* {
+			const CustomNode4& NodeToCopy = static_cast<const CustomNode4&>(CurrentNode);
 			return new CustomNode4(NodeToCopy);
 		}
 	);
@@ -16,11 +17,11 @@ bool CustomNode4::isRegistered = []()
 	return true;
 }();
 
-CustomNode4::CustomNode4() : VisualNode()
+CustomNode4::CustomNode4() : Node()
 {
 	Type = "CustomNode4";
 
-	SetStyle(VISUAL_NODE_STYLE_DEFAULT);
+	SetStyle(DEFAULT);
 
 	SetSize(ImVec2(370, 130));
 	SetName("CustomNode4");
@@ -28,56 +29,57 @@ CustomNode4::CustomNode4() : VisualNode()
 	TitleBackgroundColor = ImColor(128, 117, 208);
 	TitleBackgroundColorHovered = ImColor(135, 145, 255);
 	
-	AddSocket(new NodeSocket(this, "FLOAT", "in", false));
+	AddSocket(new NodeSocket(this, "EXEC", "in", false));
 }
 
-CustomNode4::CustomNode4(const CustomNode4& Src) : VisualNode(Src)
+CustomNode4::CustomNode4(const CustomNode4& Src) : Node(Src)
 {
 	Data = Src.Data;
 
-	SetStyle(VISUAL_NODE_STYLE_DEFAULT);
+	SetStyle(DEFAULT);
 }
 
-void CustomNode4::SetStyle(VISUAL_NODE_STYLE NewValue)
+void CustomNode4::SetStyle(NODE_STYLE NewValue)
 {
 	// Do nothing. We don't want to change style
 }
 
 void CustomNode4::Draw()
 {	
-	VisualNode::Draw();
+	Node::Draw();
 
+	float Zoom = ParentArea->GetZoomFactor();
 	ImVec2 NodePosition = ImGui::GetCursorScreenPos();
 	ImVec2 NodeSize = GetSize();
 
-	ImGui::SetCursorScreenPos(NodePosition + ImVec2(55.0f, 50.0f));
+	ImGui::SetCursorScreenPos(NodePosition + ImVec2(55.0f, 50.0f) * Zoom);
 	ImGui::Text("Node demonstrate socket events");
 
-	ImGui::SetCursorScreenPos(NodePosition + ImVec2(55.0f, 70.0f));
+	ImGui::SetCursorScreenPos(NodePosition + ImVec2(55.0f, 70.0f) * Zoom);
 	std::string OutputText = "Last socket event: \n" + LastSocketEventDiscription;
 	ImGui::Text(OutputText.c_str());
 }
 
-void CustomNode4::SocketEvent(NodeSocket* OwnSocket, NodeSocket* ConnectedSocket, VISUAL_NODE_SOCKET_EVENT EventType)
+void CustomNode4::SocketEvent(NodeSocket* OwnSocket, NodeSocket* ConnectedSocket, NODE_SOCKET_EVENT EventType)
 {
-	VisualNode::SocketEvent(OwnSocket,  ConnectedSocket, EventType);
+	Node::SocketEvent(OwnSocket,  ConnectedSocket, EventType);
 
 	std::string EventTypeStr = "Unknown";
 	switch (EventType)
 	{
-		case VISUAL_NODE_SOCKET_CONNECTED:
+		case CONNECTED:
 			EventTypeStr = "Connected";
 		break;
 
-		case VISUAL_NODE_SOCKET_DISCONNECTED:
+		case DISCONNECTED:
 			EventTypeStr = "Disconnected";
 		break;
 
-		case VISUAL_NODE_SOCKET_DESTRUCTION:
+		case DESTRUCTION:
 			EventTypeStr = "Destruction";
 		break;
 
-		case VISUAL_NODE_SOCKET_UPDATE:
+		case UPDATE:
 			EventTypeStr = "Update";
 		break;
 	}
@@ -92,7 +94,7 @@ float CustomNode4::GetData()
 
 bool CustomNode4::CanConnect(NodeSocket* OwnSocket, NodeSocket* CandidateSocket, char** MsgToUser)
 {
-	if (!VisualNode::CanConnect(OwnSocket, CandidateSocket, nullptr))
+	if (!Node::CanConnect(OwnSocket, CandidateSocket, nullptr))
 		return false;
 
 	return true;
