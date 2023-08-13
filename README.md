@@ -2,7 +2,7 @@
 
 ![build](https://github.com/Azzinoth/VisualNodeSystem-Example/actions/workflows/Build.yml/badge.svg?branch=master)
 
-This repository provides an example of a simple application that integrates the [VisualNode System](https://github.com/Azzinoth/VisualNodeSystem).
+This repository provides an example of a simple application that integrates the [Visual Node System](https://github.com/Azzinoth/VisualNodeSystem).
 
 ## Building the Project for Visual Studio (Windows)
 ```bash
