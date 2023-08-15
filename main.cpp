@@ -31,7 +31,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	NodeArea = NODE_SYSTEM.CreateNodeArea();
 	// This new function does not break other projects.
-	NodeArea->SetIsAreaFillingWindow(true);
+	NodeArea->SetIsFillingWindow(true);
 
 	// Need to place that node in the center of the screen
 	Node* DefaultNode = new Node();

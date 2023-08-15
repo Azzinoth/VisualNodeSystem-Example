@@ -70,8 +70,6 @@ void CustomNodeStyleDemonstration::Draw()
 	Node::Draw();
 
 	float Zoom = ParentArea->GetZoomFactor();
-	bool LocalBool = CouldBeMoved();
-
 	if (GetNodesConnectedToOutput().size() > 0)
 	{
 		ImVec2 NodePosition = ImGui::GetCursorScreenPos();
@@ -95,11 +93,6 @@ void CustomNodeStyleDemonstration::Draw()
 			ImGui::BeginTooltip();
 			ImGui::Text("Speed of the marching ants effect");
 			ImGui::EndTooltip();
-			SetCouldBeMoved(false);
-		}
-		else
-		{
-			SetCouldBeMoved(true);
 		}
 
 		GetParentArea()->SetConnectionStyle(this, true, 2, CurrentStyle);
