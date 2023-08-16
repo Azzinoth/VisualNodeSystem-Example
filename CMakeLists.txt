@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.10)
 
 set(BUILD_TYPE "Debug and Release" CACHE STRING "Choose Build type")
 set(CMAKE_BUILD_TYPE Debug)
@@ -16,9 +16,26 @@ set(CMAKE_CXX_FLAGS_RELEASE "/MP /W3 /O2 /Oi /Gy /sdl /FC /GL /OPT:REF /OPT:ICF 
 # defined projects like INSTALL.vcproj and ZERO_CHECK.vcproj
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+# Force your path to Dear ImGui
+set(DEAR_IMGUI_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/imgui CACHE PATH "Path to Dear ImGui directory." FORCE)
+
 if(NOT TARGET VisualNodeSystem)
 	add_subdirectory(SubSystems/VisualNodeSystem)
 endif()
+
+# *************** THIRD_PARTY ***************
+
+file(GLOB imgui_SRC
+	"ThirdParty/imgui/imgui.cpp"
+	"ThirdParty/imgui/imgui_demo.cpp"
+	"ThirdParty/imgui/imgui_draw.cpp"
+	"ThirdParty/imgui/imgui_impl_glfw.cpp"
+	"ThirdParty/imgui/imgui_impl_opengl3.cpp"
+	"ThirdParty/imgui/imgui_tables.cpp"
+	"ThirdParty/imgui/imgui_widgets.cpp"
+)
+
+# *************** THIRD_PARTY END ***************
 
 file(GLOB source_SRC
 	"CustomNode.h"
@@ -34,12 +51,14 @@ file(GLOB source_SRC
 	"main.cpp"
 )
 
-link_directories(${GLEW_LIB_DIR})
-link_directories(${GLFW_LIB_DIR})
+link_directories(${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/glew2/lib/$(PlatformTarget))
+link_directories(${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/GLFW/lib/$(PlatformTarget))
 
 # add the executable
 add_executable(Visual_Node_System_Example WIN32
 			   ${source_SRC}
+			   # *************** THIRD_PARTY ***************
+			   ${imgui_SRC}
 )
 
 target_link_libraries(Visual_Node_System_Example VisualNodeSystem)
@@ -50,14 +69,16 @@ target_link_libraries(Visual_Node_System_Example glfw3dll.lib)
 target_link_libraries(Visual_Node_System_Example opengl32.lib)
 
 source_group("Source Files" FILES ${source_SRC})
+# *************** THIRD_PARTY ***************
+source_group("Source Files/ThirdParty/imgui" FILES ${imgui_SRC})
 
 # set the startup project
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Visual_Node_System_Example)
 
 include_directories(
-	${GLEW_INCLUDE_DIR}
-	${BASICAPP_THIRDPARTY_DIR}
-	${BASICAPP_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/glew2/include
+	${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty
+	${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/imgui
 	${VISUAL_NODE_SYSTEM_DIR}
 	${VISUAL_NODE_SYSTEM_THIRDPARTY_DIR}
 )

@@ -1,4 +1,4 @@
-# VisualNode System Example
+# Visual Node System Example
 
 ![build](https://github.com/Azzinoth/VisualNodeSystem-Example/actions/workflows/Build.yml/badge.svg?branch=master)
 

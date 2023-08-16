@@ -1,12 +1,61 @@
 #include "VisualNodeSystem.h"
+using namespace VisNodeSys;
+
 #include "CustomNode.h"
 #include "CustomNode2.h"
 #include "CustomNode3.h"
 #include "CustomNode4.h"
 #include "CustomNodeStyleDemonstration.h"
 
-using namespace VisNodeSys;
-using namespace FocalEngine;
+// ********** SETING UP WINODW AND IMGUI ********** //
+
+#include "imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+
+#define GLEW_STATIC
+#include "GL/glew.h"
+#include "GL/wglew.h"
+
+#include <GLFW/glfw3.h>
+#include <GL/GL.h>
+
+GLFWwindow* Window;
+void InitWindow(const int Width, const int Height, std::string WindowTitle)
+{
+	glfwInit();
+
+	Window = glfwCreateWindow(Width, Height, WindowTitle.c_str(), nullptr, nullptr);
+	if (!Window)
+		glfwTerminate();
+
+	glfwMakeContextCurrent(Window);
+	glewInit();
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+
+	ImGui_ImplGlfw_InitForOpenGL(Window, true);
+	ImGui_ImplOpenGL3_Init("#version 410");
+}
+
+void BeginFrame()
+{
+	ImGui::GetIO().DeltaTime = 1.0f / 60.0f;
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+}
+
+void EndFrame()
+{
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	glfwSwapBuffers(Window);
+	glfwPollEvents();
+}
+
+// ********** SETING UP WINODW AND IMGUI END ********** //
 
 void DrawNodeAreaWindow(NodeArea* NodeArea)
 {
@@ -25,12 +74,11 @@ void DrawNodeAreaWindow(NodeArea* NodeArea)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	ImVec2 WindowSize = ImVec2(1280, 720);
-	FocalEngine::APPLICATION.InitWindow(static_cast<int>(WindowSize.x), static_cast<int>(WindowSize.y), "VisualNodeSystem example");
+	InitWindow(static_cast<int>(WindowSize.x), static_cast<int>(WindowSize.y), "VisualNodeSystem example");
 
 	NodeArea* NodeArea = nullptr;
 
 	NodeArea = NODE_SYSTEM.CreateNodeArea();
-	// This new function does not break other projects.
 	NodeArea->SetIsFillingWindow(true);
 
 	// Need to place that node in the center of the screen
@@ -114,9 +162,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// GetConnectionSegments function will give you vector of pair(begin and end coordinates) for each segment. 
 	std::vector<std::pair<ImVec2, ImVec2>> Segments = NodeArea->GetConnectionSegments(RerouteDemostrationNode, 0, RerouteDemostrationNodeEnd, 0);
 
-	while (FocalEngine::APPLICATION.IsWindowOpened())
+	while (!glfwWindowShouldClose(Window))
 	{
-		FocalEngine::APPLICATION.BeginFrame();
+		BeginFrame();
 
 		glClearColor(0.6f, 0.85f, 0.917f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -150,7 +198,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 				if (ImGui::MenuItem("Exit"))
 				{
-					APPLICATION.Terminate();
+					glfwSetWindowShouldClose(Window, true);
 				}
 
 				ImGui::EndMenu();
@@ -161,7 +209,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		ImGui::PopStyleVar();
 
-		APPLICATION.EndFrame();
+		EndFrame();
 	}
 	
 	return 0;
