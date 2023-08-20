@@ -24,7 +24,7 @@ CustomNode::CustomNode() : Node()
 
 	SetStyle(DEFAULT);
 
-	SetSize(ImVec2(220, 78));
+	SetSize(ImVec2(220, 130));
 	SetName("CustomNode");
 
 	TitleBackgroundColor = ImColor(31, 117, 208);
@@ -52,7 +52,6 @@ void CustomNode::Draw()
 
 	float Zoom = ParentArea->GetZoomFactor();
 	ImVec2 NodePosition = ImGui::GetCursorScreenPos();
-	ImVec2 NodeSize = GetSize();
 
 	ImGui::SetCursorScreenPos(NodePosition + ImVec2(5.0f, 34.0f) * Zoom);
 	ImGui::Text("This is custom node");

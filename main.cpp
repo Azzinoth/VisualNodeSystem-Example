@@ -76,8 +76,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	ImVec2 WindowSize = ImVec2(1280, 720);
 	InitWindow(static_cast<int>(WindowSize.x), static_cast<int>(WindowSize.y), "VisualNodeSystem example");
 
-	NodeArea* NodeArea = nullptr;
+	NODE_SYSTEM.Initialize();
 
+	NodeArea* NodeArea = nullptr;
 	NodeArea = NODE_SYSTEM.CreateNodeArea();
 	NodeArea->SetIsFillingWindow(true);
 
@@ -104,11 +105,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	
 	// Some simple rules on sockets
 	CustomNode2* CustomNode2Example = new CustomNode2();
-	CustomNode2Example->SetPosition(ImVec2(30.0f, 40.0f));
+	CustomNode2Example->SetPosition(ImVec2(10.0f, 40.0f));
+	CustomNode2Example->SetSize(CustomNode2Example->GetSize() + ImVec2(20.0f, 0.0f));
 	NodeArea->AddNode(CustomNode2Example);
 
 	CustomNode3* CustomNode3Example = new CustomNode3();
 	CustomNode3Example->SetPosition(ImVec2(WindowSize.x / 2.0f - CustomNode3Example->GetSize().x / 2.0f, 40.0f));
+	CustomNode3Example->SetSize(CustomNode3Example->GetSize() + ImVec2(80.0f, 0.0f));
 	NodeArea->AddNode(CustomNode3Example);
 
 	// Sockets events.
@@ -118,12 +121,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	// Socket style.
 	CustomNodeStyleDemonstration* CustomNode5Example = new CustomNodeStyleDemonstration();
-	CustomNode5Example->SetPosition(ImVec2(30.0f, 250.0f));
-	CustomNode5Example->SetSize(CustomNode5Example->GetSize() + ImVec2(60.0f, 10.0f));
+	CustomNode5Example->SetPosition(ImVec2(10.0f, 250.0f));
+	CustomNode5Example->SetSize(CustomNode5Example->GetSize() + ImVec2(80.0f, 10.0f));
 	NodeArea->AddNode(CustomNode5Example);
 
 	CustomNodeStyleDemonstration* CustomNode6Example = new CustomNodeStyleDemonstration();
-	CustomNode6Example->SetPosition(ImVec2(290.0f, 250.0f));
+	CustomNode6Example->SetPosition(ImVec2(300.0f, 250.0f));
 	NodeArea->AddNode(CustomNode6Example);
 
 	NodeArea->TryToConnect(CustomNode5Example, 0, CustomNode6Example, 0);
@@ -136,13 +139,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	RerouteDemostrationNode->SetName("Some node");
 	RerouteDemostrationNode->AddSocket(new NodeSocket(RerouteDemostrationNode, "EXEC", "out", true));
 	RerouteDemostrationNode->SetSize(RerouteDemostrationNode->GetSize() - ImVec2(80.0f, 0.0f));
-	RerouteDemostrationNode->SetPosition(ImVec2(30.0f, 490.0f));
+	RerouteDemostrationNode->SetPosition(ImVec2(10.0f, 490.0f));
 	NodeArea->AddNode(RerouteDemostrationNode);
 
 	Node* RerouteDemostrationNodeMiddle = new Node();
-	RerouteDemostrationNodeMiddle->SetName("Some node in between");
-	RerouteDemostrationNodeMiddle->SetSize(RerouteDemostrationNodeMiddle->GetSize() - ImVec2(80.0f, 0.0f));
-	RerouteDemostrationNodeMiddle->SetPosition(ImVec2(190.0f, 490.0f));
+	RerouteDemostrationNodeMiddle->SetName("Node in between");
+	RerouteDemostrationNodeMiddle->SetSize(RerouteDemostrationNodeMiddle->GetSize() - ImVec2(70.0f, 0.0f));
+	RerouteDemostrationNodeMiddle->SetPosition(ImVec2(180.0f, 490.0f));
 	NodeArea->AddNode(RerouteDemostrationNodeMiddle);
 
 	Node* RerouteDemostrationNodeEnd = new Node();
