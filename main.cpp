@@ -87,7 +87,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	DefaultNode->SetName("Default node");
 	DefaultNode->AddSocket(new NodeSocket(DefaultNode, "EXEC", "in", false));
 	DefaultNode->AddSocket(new NodeSocket(DefaultNode, "EXEC", "out", true));
-	DefaultNode->SetPosition(ImVec2(WindowSize.x / 2.0f - DefaultNode->GetSize().x / 2.0f, 200.0f));
+	DefaultNode->SetPosition(ImVec2(WindowSize.x / 2.0f - DefaultNode->GetSize().x / 2.0f, 250.0f));
 	NodeArea->AddNode(DefaultNode);
 	
 	Node* RoundNode = new Node();
@@ -95,12 +95,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	RoundNode->SetName("Round node");
 	RoundNode->AddSocket(new NodeSocket(RoundNode, "EXEC", "in", false));
 	RoundNode->AddSocket(new NodeSocket(RoundNode, "EXEC", "out", true));
-	RoundNode->SetPosition(ImVec2(WindowSize.x / 2.0f - RoundNode->GetSize().x / 2.0f, 350.0f));
+	RoundNode->SetPosition(ImVec2(WindowSize.x / 2.0f - RoundNode->GetSize().x / 2.0f, 400.0f));
 	NodeArea->AddNode(RoundNode);
 
 	// Custom node
 	CustomNode* CustomNodeExample = new CustomNode();
-	CustomNodeExample->SetPosition(ImVec2(WindowSize.x / 2.0f - CustomNodeExample->GetSize().x / 2, 490.0f));
+	CustomNodeExample->SetPosition(ImVec2(WindowSize.x / 2.0f - CustomNodeExample->GetSize().x / 2, 540.0f));
 	NodeArea->AddNode(CustomNodeExample);
 	
 	// Some simple rules on sockets
@@ -116,7 +116,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	// Sockets events.
 	CustomNode4* CustomNode4Example = new CustomNode4();
-	CustomNode4Example->SetPosition(ImVec2(850.0f, 250.0f));
+	CustomNode4Example->SetPosition(ImVec2(850.0f, 360.0f));
 	NodeArea->AddNode(CustomNode4Example);
 
 	// Socket style.
@@ -164,6 +164,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	// But in real project you would need to know already existing reroute nodes(segments).
 	// GetConnectionSegments function will give you vector of pair(begin and end coordinates) for each segment. 
 	std::vector<std::pair<ImVec2, ImVec2>> Segments = NodeArea->GetConnectionSegments(RerouteDemostrationNode, 0, RerouteDemostrationNodeEnd, 0);
+
+	// Add group comment to demonstrate how user can highlight node collections, signifying their combined functionality.
+	GroupComment* GroupCommentExample = new GroupComment();
+	GroupCommentExample->SetPosition(ImVec2(520.0f, 180.0f));
+	GroupCommentExample->SetSize(ImVec2(710.0f, 500.0f));
+	GroupCommentExample->SetCaption("Group of some nodes");
+	NodeArea->AddGroupComment(GroupCommentExample);
 
 	while (!glfwWindowShouldClose(Window))
 	{
