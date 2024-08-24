@@ -13,7 +13,6 @@ using namespace VisNodeSys;
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 
-#define GLEW_STATIC
 #include "GL/glew.h"
 #include "GL/wglew.h"
 
