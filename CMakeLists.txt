@@ -7,6 +7,13 @@ set(CMAKE_CONFIGURATION_TYPES Debug Release)
 # set the project name
 project(Visual_Node_System_Example LANGUAGES CXX)
 
+# Force your path to Dear ImGui
+set(DEAR_IMGUI_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/imgui CACHE PATH "Path to Dear ImGui directory." FORCE)
+
+if(NOT TARGET VisualNodeSystem)
+	add_subdirectory(SubSystems/VisualNodeSystem)
+endif()
+
 # Set compiler flags based on VISUAL_NODE_SYSTEM_USE_STATIC_RUNTIME
 if(MSVC)
     # Disable C4251 warning
@@ -28,9 +35,6 @@ endif()
 # It creates "CMakePredefinedTargets" folder by default and adds CMake
 # defined projects like INSTALL.vcproj and ZERO_CHECK.vcproj
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-
-# Force your path to Dear ImGui
-set(DEAR_IMGUI_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/imgui CACHE PATH "Path to Dear ImGui directory." FORCE)
 
 # Adjust GLFW and GLEW linking based on VISUAL_NODE_SYSTEM_BUILD_SHARED_LIBS and VISUAL_NODE_SYSTEM_USE_STATIC_RUNTIME
 if(VISUAL_NODE_SYSTEM_BUILD_SHARED_LIBS)
@@ -57,10 +61,6 @@ endif()
 # Define GLEW_STATIC for static builds
 if(USE_STATIC_RUNTIME)
     add_definitions(-DGLEW_STATIC)
-endif()
-
-if(NOT TARGET VisualNodeSystem)
-	add_subdirectory(SubSystems/VisualNodeSystem)
 endif()
 
 # *************** THIRD_PARTY ***************
