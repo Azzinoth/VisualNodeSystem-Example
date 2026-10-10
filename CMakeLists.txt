@@ -6,6 +6,8 @@ set(CMAKE_CONFIGURATION_TYPES Debug Release)
 
 # set the project name
 project(Visual_Node_System_Example LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Force your path to Dear ImGui
 set(DEAR_IMGUI_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/imgui CACHE PATH "Path to Dear ImGui directory." FORCE)
