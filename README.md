@@ -2,7 +2,7 @@
 
 This repository provides an example of a simple application that integrates the [Visual Node System](https://github.com/Azzinoth/VisualNodeSystem).
 
-This branch (`multi-backend`) builds the same example for Windows, MacOS and the web. The window, Dear ImGui and the graphics backend come from [FEBasicApplication](https://github.com/Azzinoth/FEBasicApplication) (`multi-backend` branch), which is included as a second submodule.
+This branch (`multi-backend`) builds the same example for Windows, MacOS, Linux and the web. The window, Dear ImGui and the graphics backend come from [FEBasicApplication](https://github.com/Azzinoth/FEBasicApplication) (`multi-backend` branch), which is included as a second submodule.
 
 If you only need a simple Windows example without the FEBasicApplication dependency, use the [master branch](https://github.com/Azzinoth/VisualNodeSystem-Example/tree/master).
 
@@ -12,6 +12,7 @@ If you only need a simple Windows example without the FEBasicApplication depende
 |---|---|---|
 | Windows | GLFW | OpenGL (default) or WebGPU (Dawn) |
 | MacOS | GLFW | OpenGL |
+| Linux | GLFW (X11) | OpenGL |
 | Web | Emscripten | WebGPU |
 
 ## Building the Project for Visual Studio (Windows)
