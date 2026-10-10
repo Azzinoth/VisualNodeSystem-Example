@@ -1,3 +1,6 @@
+#include "SubSystems/FEBasicApplication/FEBasicApplication.h"
+using namespace FocalEngine;
+
 #include "VisualNodeSystem.h"
 using namespace VisNodeSys;
 
@@ -7,54 +10,7 @@ using namespace VisNodeSys;
 #include "CustomNode4.h"
 #include "CustomNodeStyleDemonstration.h"
 
-// ********** SETING UP WINODW AND IMGUI ********** //
-
-#include "imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
-
-#include "GL/glew.h"
-#include "GL/wglew.h"
-
-#include <GLFW/glfw3.h>
-#include <GL/GL.h>
-
-GLFWwindow* Window;
-void InitWindow(const int Width, const int Height, std::string WindowTitle)
-{
-	glfwInit();
-
-	Window = glfwCreateWindow(Width, Height, WindowTitle.c_str(), nullptr, nullptr);
-	if (!Window)
-		glfwTerminate();
-
-	glfwMakeContextCurrent(Window);
-	glewInit();
-
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-
-	ImGui_ImplGlfw_InitForOpenGL(Window, true);
-	ImGui_ImplOpenGL3_Init("#version 410");
-}
-
-void BeginFrame()
-{
-	ImGui::GetIO().DeltaTime = 1.0f / 60.0f;
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
-	ImGui::NewFrame();
-}
-
-void EndFrame()
-{
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-	glfwSwapBuffers(Window);
-	glfwPollEvents();
-}
-
-// ********** SETING UP WINODW AND IMGUI END ********** //
+#include <filesystem>
 
 void DrawNodeAreaWindow(NodeArea* NodeArea)
 {
@@ -70,10 +26,58 @@ void DrawNodeAreaWindow(NodeArea* NodeArea)
 	ImGui::End();
 }
 
+void DrawMainMenuBar(NodeArea* NodeArea)
+{
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8, 8));
+	if (ImGui::BeginMainMenuBar())
+	{
+		if (ImGui::BeginMenu("File"))
+		{
+			if (ImGui::MenuItem("Save nodes to Save.nodes file"))
+			{
+				NodeArea->SaveToFile("Save.nodes");
+			}
+
+			std::error_code ErrorCode;
+			const bool bSaveFileExists = std::filesystem::is_regular_file("Save.nodes", ErrorCode);
+			if (!bSaveFileExists)
+				ImGui::BeginDisabled();
+
+			if (ImGui::MenuItem("Load nodes from Save.nodes file"))
+			{
+				NodeArea->Clear();
+				NodeArea->LoadFromFile("Save.nodes");
+			}
+
+			if (!bSaveFileExists)
+				ImGui::EndDisabled();
+
+			// A browser tab can not be closed by the application.
+#if !FE_PLATFORM(EMSCRIPTEN)
+			if (ImGui::MenuItem("Exit"))
+			{
+				APPLICATION.Close();
+			}
+#endif
+
+			ImGui::EndMenu();
+		}
+
+		ImGui::EndMainMenuBar();
+	}
+
+	ImGui::PopStyleVar();
+}
+
+#if FE_PLATFORM(WINDOWS)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+#else
+int main(int argc, char** argv)
+#endif
 {
 	ImVec2 WindowSize = ImVec2(1280, 720);
-	InitWindow(static_cast<int>(WindowSize.x), static_cast<int>(WindowSize.y), "VisualNodeSystem example");
+	FEWindow* MainWindow = APPLICATION.AddWindow(static_cast<int>(WindowSize.x), static_cast<int>(WindowSize.y), "VisualNodeSystem example");
+	MainWindow->SetClearColor(0.6f, 0.85f, 0.917f, 1.0f);
 
 	NODE_SYSTEM.Initialize();
 
@@ -88,7 +92,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	DefaultNode->AddSocket(new NodeSocket(DefaultNode, "EXEC", "out", NodeSocket::SocketFlow::Output));
 	DefaultNode->SetPosition(ImVec2(WindowSize.x / 2.0f - DefaultNode->GetSize().x / 2.0f, 250.0f));
 	NodeArea->AddNode(DefaultNode);
-	
+
 	Node* RoundNode = new Node();
 	RoundNode->SetStyle(CIRCLE);
 	RoundNode->SetName("Round node");
@@ -101,7 +105,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	CustomNode* CustomNodeExample = new CustomNode();
 	CustomNodeExample->SetPosition(ImVec2(WindowSize.x / 2.0f - CustomNodeExample->GetSize().x / 2, 540.0f));
 	NodeArea->AddNode(CustomNodeExample);
-	
+
 	// Some simple rules on sockets
 	CustomNode2* CustomNode2Example = new CustomNode2();
 	CustomNode2Example->SetPosition(ImVec2(10.0f, 40.0f));
@@ -161,7 +165,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	// In previous example SegmentIndex would be 0 and 1.
 	// But in real project you would need to know already existing reroute nodes(segments).
-	// GetConnectionSegments function will give you vector of pair(begin and end coordinates) for each segment. 
+	// GetConnectionSegments function will give you vector of pair(begin and end coordinates) for each segment.
 	std::vector<std::pair<ImVec2, ImVec2>> Segments = NodeArea->GetConnectionSegments(RerouteDemostrationNode, 0, RerouteDemostrationNodeEnd, 0);
 
 	// Add group comment to demonstrate how user can highlight node collections, signifying their combined functionality.
@@ -171,55 +175,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	GroupCommentExample->SetCaption("Group of some nodes");
 	NodeArea->AddGroupComment(GroupCommentExample);
 
-	while (!glfwWindowShouldClose(Window))
-	{
-		BeginFrame();
-
-		glClearColor(0.6f, 0.85f, 0.917f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	// NodeArea is captured by value, because on the web APPLICATION.Run never returns to main.
+	MainWindow->SetRenderFunction([NodeArea]() {
 		DrawNodeAreaWindow(NodeArea);
+		DrawMainMenuBar(NodeArea);
+	});
 
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8, 8));
-		if (ImGui::BeginMainMenuBar())
-		{
-			if (ImGui::BeginMenu("File"))
-			{
-				if (ImGui::MenuItem("Save nodes to Save.nodes file"))
-				{
-					NodeArea->SaveToFile("Save.nodes");
-				}
+	APPLICATION.Run([]() {
+		APPLICATION.BeginFrame();
+		APPLICATION.RenderWindows();
+		APPLICATION.EndFrame();
+	});
 
-				DWORD dwAttrib = GetFileAttributesA("Save.nodes");
-				if (!(dwAttrib != INVALID_FILE_ATTRIBUTES &&
-					!(dwAttrib & FILE_ATTRIBUTE_DIRECTORY)))
-					ImGui::BeginDisabled();
-
-				if (ImGui::MenuItem("Load nodes from Save.nodes file"))
-				{
-					NodeArea->Clear();
-					NodeArea->LoadFromFile("Save.nodes");
-				}
-
-				if (!(dwAttrib != INVALID_FILE_ATTRIBUTES &&
-					!(dwAttrib & FILE_ATTRIBUTE_DIRECTORY)))
-					ImGui::EndDisabled();
-
-				if (ImGui::MenuItem("Exit"))
-				{
-					glfwSetWindowShouldClose(Window, true);
-				}
-
-				ImGui::EndMenu();
-			}
-
-			ImGui::EndMainMenuBar();
-		}
-
-		ImGui::PopStyleVar();
-
-		EndFrame();
-	}
-	
 	return 0;
 }

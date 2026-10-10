@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
 
 set(BUILD_TYPE "Debug and Release" CACHE STRING "Choose Build type")
-set(CMAKE_BUILD_TYPE Debug)
+if(NOT CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE Debug)
+endif()
 set(CMAKE_CONFIGURATION_TYPES Debug Release)
 
 # set the project name
@@ -9,28 +11,22 @@ project(Visual_Node_System_Example LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Force your path to Dear ImGui
-set(DEAR_IMGUI_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/imgui CACHE PATH "Path to Dear ImGui directory." FORCE)
+set(USE_STATIC_RUNTIME ON CACHE BOOL "Use static runtime (/MT) instead of dynamic (/MD)" FORCE)
 
-if(NOT TARGET VisualNodeSystem)
-	add_subdirectory(SubSystems/VisualNodeSystem)
-endif()
-
-# Set compiler flags based on VISUAL_NODE_SYSTEM_USE_STATIC_RUNTIME
 if(MSVC)
-    # Disable C4251 warning
-    add_compile_options(/wd4251)
+	# Disable C4251 warning
+	add_compile_options(/wd4251)
 
-    if(VISUAL_NODE_SYSTEM_USE_STATIC_RUNTIME)
-        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
-        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
-    else()
-        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
-        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
-    endif()
+	if(USE_STATIC_RUNTIME)
+		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+	else()
+		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
+		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
+	endif()
 
-    # Always add /MP for multi-processor compilation
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+	# Always add /MP for multi-processor compilation
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 endif()
 
 # Turn on the ability to create folders to organize projects (.vcproj)
@@ -38,50 +34,18 @@ endif()
 # defined projects like INSTALL.vcproj and ZERO_CHECK.vcproj
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-# Adjust GLFW and GLEW linking based on VISUAL_NODE_SYSTEM_BUILD_SHARED_LIBS and VISUAL_NODE_SYSTEM_USE_STATIC_RUNTIME
-if(VISUAL_NODE_SYSTEM_BUILD_SHARED_LIBS)
-    if(VISUAL_NODE_SYSTEM_USE_STATIC_RUNTIME)
-        message(WARNING "Building a shared library with static runtime is uncommon and may lead to issues.")
-        set(VISUAL_NODE_SYSTEM_GLFW_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/GLFW/lib/x64/glfw3_mt.lib CACHE PATH "Path to GLFW library." FORCE)
-        set(GLEW_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/glew2/lib/x64/glew32s.lib)
-    else()
-        set(VISUAL_NODE_SYSTEM_GLFW_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/GLFW/lib/x64/glfw3dll.lib CACHE PATH "Path to GLFW library." FORCE)
-        set(GLEW_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/glew2/lib/x64/glew32.lib)
-    endif()
-
-    set(VISUAL_NODE_SYSTEM_GLFW_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/ CACHE PATH "Path to GLFW include directory." FORCE)
-else()
-    if(VISUAL_NODE_SYSTEM_USE_STATIC_RUNTIME)
-        set(VISUAL_NODE_SYSTEM_GLFW_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/GLFW/lib/x64/glfw3_mt.lib CACHE PATH "Path to GLFW library." FORCE)
-        set(GLEW_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/glew2/lib/x64/glew32s.lib)
-    else()
-        set(VISUAL_NODE_SYSTEM_GLFW_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/GLFW/lib/x64/glfw3.lib CACHE PATH "Path to GLFW library." FORCE)
-        set(GLEW_LIBRARY ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/glew2/lib/x64/glew32.lib)
-    endif()
+if(NOT TARGET FEBasicApplication)
+	add_subdirectory(SubSystems/FEBasicApplication)
 endif()
 
-# Define GLEW_STATIC for static builds
-if(USE_STATIC_RUNTIME)
-    add_definitions(-DGLEW_STATIC)
+# VisualNodeSystem must be compiled against the same Dear ImGui that FEBasicApplication compiles.
+set(DEAR_IMGUI_INCLUDE_DIR ${BASICAPP_THIRDPARTY_DIR}/imgui CACHE PATH "Path to Dear ImGui directory." FORCE)
+set(VISUAL_NODE_SYSTEM_BUILD_SHARED_LIBS OFF CACHE BOOL "Build VisualNodeSystem as a shared library" FORCE)
+set(VISUAL_NODE_SYSTEM_USE_STATIC_RUNTIME ${USE_STATIC_RUNTIME} CACHE BOOL "Use static runtime (/MT) instead of dynamic (/MD) for VisualNodeSystem" FORCE)
+
+if(NOT TARGET VisualNodeSystem)
+	add_subdirectory(SubSystems/VisualNodeSystem)
 endif()
-
-# *************** THIRD_PARTY ***************
-
-set(imgui_SRC "")
-if(NOT VISUAL_NODE_SYSTEM_BUILD_SHARED_LIBS)
-    list(APPEND imgui_SRC
-		"ThirdParty/imgui/misc/cpp/imgui_stdlib.cpp"
-        "ThirdParty/imgui/imgui.cpp"
-	    "ThirdParty/imgui/imgui_demo.cpp"
-	    "ThirdParty/imgui/imgui_draw.cpp"
-	    "ThirdParty/imgui/imgui_impl_glfw.cpp"
-	    "ThirdParty/imgui/imgui_impl_opengl3.cpp"
-	    "ThirdParty/imgui/imgui_tables.cpp"
-	    "ThirdParty/imgui/imgui_widgets.cpp"
-    )
-endif()
-
-# *************** THIRD_PARTY END ***************
 
 file(GLOB source_SRC
 	"CustomNode.h"
@@ -97,60 +61,59 @@ file(GLOB source_SRC
 	"main.cpp"
 )
 
-link_directories(${GLFW_LIB_DIR})
+if(NOT EMSCRIPTEN)
+	link_directories(${GLEW_LIB_DIR})
+	link_directories(${GLFW_LIB_DIR})
+endif()
 
 # add the executable
 add_executable(Visual_Node_System_Example WIN32
 			   ${source_SRC}
-			   # *************** THIRD_PARTY ***************
-			   ${imgui_SRC}
 )
 
-# Define GLEW_STATIC for static builds
-if(VISUAL_NODE_SYSTEM_USE_STATIC_RUNTIME)
-    add_definitions(-DGLEW_STATIC)
+target_link_libraries(Visual_Node_System_Example
+	PRIVATE
+		VisualNodeSystem
+		FEBasicApplication
+)
+
+# On Emscripten, emit an .html alongside the .js/.wasm, built from Web_Shell.html
+# (a full-window #canvas that hosts the wasm app).
+if(EMSCRIPTEN)
+	set_target_properties(Visual_Node_System_Example PROPERTIES
+		SUFFIX ".html"
+		LINK_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/Web_Shell.html"
+	)
+	target_link_options(Visual_Node_System_Example PRIVATE "--shell-file=${CMAKE_CURRENT_SOURCE_DIR}/Web_Shell.html")
+	target_link_options(Visual_Node_System_Example PRIVATE "-sALLOW_MEMORY_GROWTH=1")
 endif()
 
-target_link_libraries(Visual_Node_System_Example 
-    PRIVATE
-        VisualNodeSystem
-        ${GLEW_LIBRARY}
-        ${VISUAL_NODE_SYSTEM_GLFW_LIBRARY}
-        opengl32.lib
-)
+if(FE_GRAPHIC_API_BACKEND STREQUAL "WebGPU" AND NOT EMSCRIPTEN)
+	target_link_libraries(Visual_Node_System_Example
+		PRIVATE
+			debug ${DAWN_LIBRARY_DEBUG}
+			optimized ${DAWN_LIBRARY_RELEASE}
+	)
+endif()
 
 source_group("Source Files" FILES ${source_SRC})
-# *************** THIRD_PARTY ***************
-source_group("Source Files/ThirdParty/imgui" FILES ${imgui_SRC})
 
 # set the startup project
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Visual_Node_System_Example)
 
 include_directories(
-	${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/glew2/include
-	${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty
-	${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/imgui
+	${GLEW_INCLUDE_DIR}
+	${BASICAPP_THIRDPARTY_DIR}
+	${BASICAPP_THIRDPARTY_DIR}/imgui
 	${VISUAL_NODE_SYSTEM_DIR}
 	${VISUAL_NODE_SYSTEM_THIRDPARTY_DIR}
+	$<$<STREQUAL:${FE_GRAPHIC_API_BACKEND},WebGPU>:${DAWN_INCLUDE_DIR}>
 )
 
-# If building as DLL, copy necessary DLLs to output directory
-if(VISUAL_NODE_SYSTEM_BUILD_SHARED_LIBS)
-    add_custom_command(TARGET Visual_Node_System_Example POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/GLFW/lib/x64/glfw3.dll"
-            "$<TARGET_FILE_DIR:Visual_Node_System_Example>"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "$<TARGET_FILE_DIR:VisualNodeSystem>/VisualNodeSystem.dll"
-            "$<TARGET_FILE_DIR:Visual_Node_System_Example>"
-    )
-endif()
-
-# If using dynamic runtime, copy necessary DLLs to output directory
-if(NOT VISUAL_NODE_SYSTEM_USE_STATIC_RUNTIME)
-    add_custom_command(TARGET Visual_Node_System_Example POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/glew2/lib/x64/glew32.dll"
-            "$<TARGET_FILE_DIR:Visual_Node_System_Example>"
-    )
+if(FE_GRAPHIC_API_BACKEND STREQUAL "WebGPU" AND NOT EMSCRIPTEN)
+	add_custom_command(TARGET Visual_Node_System_Example POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_directory
+			"${DAWN_LIB_DIR}$<IF:$<CONFIG:Debug>,Debug,Release>/Dynamic_runtime/"
+			"$<TARGET_FILE_DIR:Visual_Node_System_Example>"
+	)
 endif()
