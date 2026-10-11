@@ -6,6 +6,8 @@ This branch (`multi-backend`) builds the same example for Windows, MacOS, Linux 
 
 If you only need a simple Windows example without the FEBasicApplication dependency, use the [master branch](https://github.com/Azzinoth/VisualNodeSystem-Example/tree/master).
 
+**[Live demo](https://azzinoth.github.io/VisualNodeSystem-Example/)**: the web version, running in the browser. It needs a browser with WebGPU support.
+
 ## Supported targets
 
 | Platform | Window system | Graphics API |
