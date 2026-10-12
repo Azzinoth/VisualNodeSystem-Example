@@ -10,8 +10,6 @@ using namespace VisNodeSys;
 #include "CustomNode4.h"
 #include "CustomNodeStyleDemonstration.h"
 
-#include <filesystem>
-
 void DrawNodeAreaWindow(NodeArea* NodeArea)
 {
 	ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -33,24 +31,24 @@ void DrawMainMenuBar(NodeArea* NodeArea)
 	{
 		if (ImGui::BeginMenu("File"))
 		{
-			if (ImGui::MenuItem("Save nodes to Save.nodes file"))
+			// On the web, saving downloads the file and loading asks the browser for a file to upload.
+			if (ImGui::MenuItem("Save nodes..."))
 			{
-				NodeArea->SaveToFile("Save.nodes");
+				FILE_SYSTEM.SaveFileDialog("Save.nodes", { { "Node area", { "nodes" } } }, [NodeArea](const std::string& FilePath, int ChosenFilterIndex) {
+					return NodeArea->SaveToFile(FilePath);
+				});
 			}
 
-			std::error_code ErrorCode;
-			const bool bSaveFileExists = std::filesystem::is_regular_file("Save.nodes", ErrorCode);
-			if (!bSaveFileExists)
-				ImGui::BeginDisabled();
-
-			if (ImGui::MenuItem("Load nodes from Save.nodes file"))
+			if (ImGui::MenuItem("Load nodes..."))
 			{
-				NodeArea->Clear();
-				NodeArea->LoadFromFile("Save.nodes");
-			}
+				FILE_SYSTEM.OpenFileDialog({ { "Node area", { "nodes" } } }, [NodeArea](const std::string& FilePath) {
+					if (FilePath.empty())
+						return;
 
-			if (!bSaveFileExists)
-				ImGui::EndDisabled();
+					NodeArea->Clear();
+					NodeArea->LoadFromFile(FilePath);
+				});
+			}
 
 			// A browser tab can not be closed by the application.
 #if !FE_PLATFORM(EMSCRIPTEN)
